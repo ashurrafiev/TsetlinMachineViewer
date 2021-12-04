@@ -37,7 +37,7 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 	
 	@Override
 	public String getStateTitle() {
-		return String.format("input: %d/%d", nextExample, data.opt.numExamplesTrain);
+		return String.format("input: %d/%d", nextExample, data.countTrain);
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 		mcTsetlinMachine.update(data.trainX[nextExample], data.trainy[nextExample]);
 		
 		nextExample++;
-		if(nextExample>=data.opt.numExamplesTrain) {
+		if(nextExample>=data.countTrain) {
 			epoch++;
 			nextExample = 0;
 		}
@@ -77,12 +77,12 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 
 	@Override
 	public double evaluateTrain() {
-		return mcTsetlinMachine.evaluate(data.trainX, data.trainy, data.opt.numExamplesTrain);
+		return mcTsetlinMachine.evaluate(data.trainX, data.trainy, data.countTrain);
 	}
 
 	@Override
 	public double evaluateTest() {
-		return mcTsetlinMachine.evaluate(data.testX, data.testy, data.opt.numExamplesTest);
+		return mcTsetlinMachine.evaluate(data.testX, data.testy, data.countTest);
 	}
 
 	@Override

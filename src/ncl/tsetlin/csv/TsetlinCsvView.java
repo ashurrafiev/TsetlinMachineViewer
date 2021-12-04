@@ -8,15 +8,8 @@ import java.util.Scanner;
 import ncl.tsetlin.TsetlinMachine.Polarity;
 import ncl.tsetlin.TsetlinOptions;
 import ncl.tsetlin.view.TsetlinStateTracker;
-import ncl.tsetlin.view.TsetlinStateViewer;
 
 public class TsetlinCsvView implements TsetlinStateTracker {
-
-	public static final TsetlinOptions demoOpt = new TsetlinOptions()
-			.setFeatures(16)
-			.setClauses(100)
-			.setNumStates(100)
-			.setClasses(3);
 	
 	public class State {
 		public int ta[][];
@@ -139,15 +132,6 @@ public class TsetlinCsvView implements TsetlinStateTracker {
 			return (state+1-opt.numStates/2) / (float)(opt.numStates/2);
 		else
 			return (state-opt.numStates/2) / (float)(opt.numStates/2);
-	}
-
-	public static void main(String[] args) {
-		try {
-			TsetlinCsvView csv = new TsetlinCsvView(demoOpt, "D:/Poets/tsetlin/IrisRunTaStates/%d.csv");
-			TsetlinStateViewer.startViewer(csv);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 }
