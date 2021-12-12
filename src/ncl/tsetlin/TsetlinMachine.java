@@ -153,12 +153,7 @@ public class TsetlinMachine {
 				sum += vote(j);
 			}
 		}
-		if(sum<-opt.threshold)
-			return -opt.threshold;
-		else if(sum>opt.threshold)
-			return opt.threshold;
-		else
-			return sum;
+		return sum;
 	}
 	
 	/**

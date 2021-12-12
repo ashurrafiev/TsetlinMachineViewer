@@ -26,12 +26,13 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 	public static final Color bgColor = new Color(0xeeeeee);
 	public static final Color lightGray = new Color(0xcccccc);
 
+	public static boolean uiDrawLiterals = false;
+	public static boolean uiClassesVertical = true;
+	public static float uiScale = 1f;
+
 	public TsetlinStateTracker tmStates;
 	public double accTrain = -1.0;
 	public double accTest = -1.0;
-	
-	public boolean drawLiterals = false;
-	public boolean classesVertical = true;
 	
 	public TsetlinStateViewer(UIContainer parent, TsetlinStateTracker tmStates) {
 		super(new UIZoomView(parent) {
@@ -41,6 +42,7 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 			}
 		});
 		((UIZoomView)getParent()).setScaleRange(0.1f, 10f);
+		((UIZoomView)getParent()).setScale(uiScale);
 		getBase().setFocus(this);
 		
 		this.tmStates = tmStates;
@@ -72,6 +74,7 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 	@Override
 	public void paint(GraphAssist g) {
 		TsetlinOptions opt = tmStates.getOptions();
+		g.translate(40, 80);
 		
 		int colw = boxSize*2+8;
 		int rowh = boxSize+4;
@@ -92,15 +95,15 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 		g.line(0, -54, 650, -54, Color.BLACK);
 		
 		for(int cls=0; cls<opt.classes; cls++) {
-			int xc = classesVertical ? 0 : classw*cls;
-			int yc = classesVertical ? (classh+76)*cls : 0;
+			int xc = uiClassesVertical ? 0 : classw*cls;
+			int yc = uiClassesVertical ? (classh+76)*cls : 0;
 
 			g.setColor(Color.BLACK);
 			g.setFont(fontLarge);
 			g.drawString(String.format("class #%d", cls), xc, yc-30, GraphAssist.LEFT, GraphAssist.BOTTOM);
 			
 			g.setFont(fontSmall);
-			if(classesVertical || cls==0) {
+			if(uiClassesVertical || cls==0) {
 				g.line(xc-12, yc, xc-12, yc+classh-4);
 				for(int r=0; r<opt.features; r++) {
 					g.drawString(String.format("x%d", r), xc-16, yc+r*rowh+boxSize/2, GraphAssist.RIGHT, GraphAssist.CENTER);
@@ -111,17 +114,17 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 				g.drawString("N", xc+c*colw+boxSize+boxSize/2, yc-8, GraphAssist.CENTER, GraphAssist.BOTTOM);
 				g.drawString((c&1)==0 ? "+" : "-", xc+c*colw+boxSize, yc+classh+4, GraphAssist.CENTER, GraphAssist.TOP);
 			}
-			if(classesVertical)
+			if(uiClassesVertical)
 				g.line(0, yc+classh+20, classw-8, yc+classh+20);
 			else
 				g.line(xc+classw-12, yc, xc+classw-12, yc+classh-4);
 			
 			for(int c=0; c<opt.clauses; c++) {
-				if(drawLiterals && c>0) {
+				if(uiDrawLiterals && c>0) {
 					g.line(xc+c*colw-4, yc, xc+c*colw-4, yc+classh-4, lightGray);
 				}
 				for(int r=0; r<opt.features; r++) {
-					if(drawLiterals) {
+					if(uiDrawLiterals) {
 						boolean pos = tmStates.includeLiteral(tmStates.getState(cls, c, Polarity.positive, r));
 						boolean neg = tmStates.includeLiteral(tmStates.getState(cls, c, Polarity.negative, r));
 						if(pos && neg) {
@@ -160,11 +163,11 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 	public boolean onKeyPressed(char c, int code, int mods) {
 		switch(code) {
 			case KeyEvent.VK_L:
-				drawLiterals = !drawLiterals;
+				uiDrawLiterals = !uiDrawLiterals;
 				repaint();
 				break;
 			case KeyEvent.VK_V:
-				classesVertical = !classesVertical;
+				uiClassesVertical = !uiClassesVertical;
 				repaint();
 				break;
 			case KeyEvent.VK_BACK_SPACE:

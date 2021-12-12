@@ -1,6 +1,7 @@
 package ncl.tsetlin;
 
 import static ncl.tsetlin.ConfigLoader.*;
+import static ncl.tsetlin.view.TsetlinStateViewer.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,7 +9,6 @@ import java.util.HashMap;
 import ncl.tsetlin.csv.TsetlinCsvView;
 import ncl.tsetlin.view.TsetlinLiveTracker;
 import ncl.tsetlin.view.TsetlinStateTracker;
-import ncl.tsetlin.view.TsetlinStateViewer;
 
 public class TrainLiveDemo {
 
@@ -21,6 +21,10 @@ public class TrainLiveDemo {
 		}
 		TsetlinOptions opt = (new TsetlinOptions()).setConfigValues(values);
 
+		uiDrawLiterals = getBoolean(values.get("uiDrawLiterals"), false);
+		uiClassesVertical = getBoolean(values.get("uiClassesVertical"), true);
+		uiScale = getFloat(values.get("uiScale"), 0.1f, 10f, 1f);
+		
 		String csvFormat = values.get("csvPathFormat");
 		if (csvFormat != null) {
 			try {
@@ -50,7 +54,7 @@ public class TrainLiveDemo {
 
 	public static void main(String[] args) {
 		if (args.length == 1) {
-			TsetlinStateViewer.startViewer(loadConfig(args[0]));
+			startViewer(loadConfig(args[0]));
 			return;
 		}
 		System.out.println("Usage:\njava -jar tsetlinviewer.jar <config_file>");
