@@ -1,16 +1,18 @@
-package ncl.tsetlin;
+package ncl.tsetlin.experimental;
 
 import java.util.Random;
 
-public class TsetlinMachine {
+import ncl.tsetlin.TsetlinMachine.Polarity;
+import ncl.tsetlin.TsetlinOptions;
 
-	public boolean countFlips = true;
-	public boolean countFeedback = true;
+public class ExperimentalTsetlinMachine {
 
-	public static final int PROMOTE = +1;
-	public static final int DEMOTE = -1;
+	/*public static final int PROMOTE = +1;
+	public static final int DEMOTE = -1;*/
 	
-	public enum Polarity { positive, negative }
+	public static final int ACTION_INC_POS = 1;
+	public static final int ACTION_INC_NEG = 3;
+	public static final int ACTION_EXC = 0;
 	
 	// random number generator
 	public static final Random rand = new Random();
@@ -34,19 +36,20 @@ public class TsetlinMachine {
 	}
 	
 	/**
-	 * Returns polarity of k-th literal: odd literals are negated (1), even literals are positive (0)
-	 */
-	private static boolean polarity(int k) {
-		return (k&1)!=0;
-	}
-	
-	/**
 	 * Calculate the value of k-th literal on the given input respecting literal polarity
 	 */
-	private static boolean literalValue(boolean[] input, int k) {
-		return (input)[(k)/2] ^ polarity(k);
+/*	private boolean literalValue(boolean[] input, int k) {
+		return (input)[k] ^ polarity(k);
+	}*/
+
+	public static boolean polarityAction(int action) {
+		return (action&2)!=0;
 	}
-	
+
+	public static boolean includeAction(int action) {
+		return (action&1)!=0;
+	}
+
 	/**
 	 * Determine include (true) or exclude (false) decision based on a TA state
 	 */
@@ -63,7 +66,8 @@ public class TsetlinMachine {
 	
 	public class Clause {
 		// TA states for positive (even) and negative (odd) polarity literals
-		public int[] ta;
+		public int[] ta_a;
+		public int[] ta_w;
 		
 		// clause output (cached value)
 		public boolean output;
@@ -80,7 +84,7 @@ public class TsetlinMachine {
 			// calculate conjunction over k literals
 			// (we can stop early if output becomes false)
 			for(int k=0; output && k<literals; k++) {
-				if(includeLiteral(ta[k])) {
+				if(includeAction(ta_a[k])) {
 					output &= literalValue(input, k);
 					inc = true;
 				}
@@ -90,30 +94,40 @@ public class TsetlinMachine {
 			return output;
 		}
 		
+		public boolean literalValue(boolean[] input, int k) {
+			return (input)[k] ^ polarityAction(ta_a[k]);
+		}
+		
 		public void updateTA(int k, int action) {
-			int nextState = ta[k]+action;
+			/*if(!includeAction(ta_a[k]))
+				action = -action;
+			int nextw = ta_w[k]+action;
+			if(nextw<0) // flip action if negative
+				ta_a[k] = (ta_a[k]+1)&3;
+			else if(nextw<opt.numStates) // update, if next state is within allowed states
+				ta_w[k] = nextw;*/
 			
-			// update, if next state is within allowed states
-			if(nextState>-opt.numStates && nextState<=opt.numStates)
-				ta[k] = nextState;
+			int delta = action==ta_a[k] ? +1 : -1;
+			int nextw = ta_w[k]+delta;
+			if(nextw<0) // flip action if negative
+				ta_a[k] = action;
+			else if(nextw<opt.numStates) // update, if next state is within allowed states
+			ta_w[k] = nextw;
 		}
 	}
 	
 	public Clause[] clauses;
-
-	public int flips = 0;
-	public int countType1 = 0;
-	public int countType2 = 0;
-
-	public TsetlinMachine(TsetlinOptions opt) {
+	
+	public ExperimentalTsetlinMachine(TsetlinOptions opt) {
 		this.opt = opt;
-		this.literals = opt.features*2;
+		this.literals = opt.features;//*2;
 		
 		// create all clauses
 		clauses = new Clause[opt.clauses];
 		for(int j=0; j<opt.clauses; j++) {
 			clauses[j] = new Clause();
-			clauses[j].ta = new int[literals];
+			clauses[j].ta_a = new int[literals];
+			clauses[j].ta_w = new int[literals];
 		}
 		
 		initialize();
@@ -124,17 +138,11 @@ public class TsetlinMachine {
 	 */
 	public void initialize() {
 		for(int j=0; j<opt.clauses; j++) {				
-			for(int k=0; k<literals; k+=2) {
-				/*if(withProbability(0.5)) {
-					this.clauses[j].ta[k] = 1;
-					this.clauses[j].ta[k+1] = 0; 
-				}
-				else {
-					this.clauses[j].ta[k] = 0;
-					this.clauses[j].ta[k+1] = 1; 
-				}*/
-				this.clauses[j].ta[k] = 0;
-				this.clauses[j].ta[k+1] = 0; 
+			for(int k=0; k<literals; k++) {
+				this.clauses[j].ta_a[k] = withProbability(0.5) ? ACTION_INC_POS : ACTION_INC_NEG;
+				this.clauses[j].ta_w[k] = 0;
+				//this.clauses[j].ta_a[k+1] = 1-this.clauses[j].ta_a[k];
+				//this.clauses[j].ta_w[k+1] = 0; 
 			}
 		}
 	}
@@ -169,21 +177,48 @@ public class TsetlinMachine {
 	 * return TA state for the given clause, feature, and polarity of a literal
 	 */
 	public int getState(int clause, Polarity polarity, int feature) {
-		int k = feature*2;
-		if(polarity==Polarity.negative)
-			k++;
-		return this.clauses[clause].ta[k];
+		int k = feature;//*2;
+		if((polarity==Polarity.negative) != polarityAction(this.clauses[clause].ta_a[k]))
+			return 0;
+		if(includeAction(this.clauses[clause].ta_a[k]))
+			return this.clauses[clause].ta_w[k]+1;
+		else
+			return -this.clauses[clause].ta_w[k];
 	}
 	
 	private void typeIFeedback(Clause clause, boolean[] input) {
 		for(int k=0; k<literals; k++) {
-			if(clause.output && literalValue(input, k)) { // clause is 1 and literal is 1
-				if(withProbability(1.0-1.0/opt.s))
-					clause.updateTA(k, PROMOTE);
+			/*if(clause.output) { // clause is 1 and literal is 1
+				if(includeAction(clause.ta_a[k]) && clause.literalValue(input, k)) {
+					if(withProbability(1.0-1.0/opt.s))
+						clause.updateTA(k, PROMOTE);
+				}
+				else {
+					//if(withProbability(1.0/opt.s))
+					//	clause.updateTA(k, DEMOTE);
+				}
 			}
 			else { // clause is 0 or literal is 0
 				if(withProbability(1.0/opt.s))
 					clause.updateTA(k, DEMOTE);
+			}*/
+			if(clause.output) {
+				if(!includeAction(clause.ta_a[k])) {
+					if(withProbability(1.0/opt.s))
+						clause.updateTA(k, ACTION_EXC);
+				}
+				else if(input[k]) {
+					if(withProbability(1.0-1.0/opt.s))
+						clause.updateTA(k, ACTION_INC_POS);
+				}
+				else {
+					if(withProbability(1.0-1.0/opt.s))
+						clause.updateTA(k, ACTION_INC_NEG);
+				}
+			}
+			else {
+				if(withProbability(1.0/opt.s))
+					clause.updateTA(k, ACTION_EXC);
 			}
 		}
 	}
@@ -192,22 +227,20 @@ public class TsetlinMachine {
 		// only if clause is 1
 		if(clause.output) {
 			for(int k=0; k<literals; k++) {
-				if(!literalValue(input, k) && !includeLiteral(clause.ta[k])) // if literal is 0 and excluded
-					clause.updateTA(k, PROMOTE);
+				/*if(!clause.literalValue(input, k) && !includeAction(clause.ta_a[k])) // if literal is 0 and excluded
+					clause.updateTA(k, PROMOTE);*/
+				if(!includeAction(clause.ta_a[k])) {
+					//if(input[k])
+					if(withProbability(0.5))
+						clause.updateTA(k, ACTION_INC_NEG);
+					else
+						clause.updateTA(k, ACTION_INC_POS);
+				}
 			}
 		}
 	}
 
 	public void update(boolean[] input, boolean output) {
-		boolean[][] prevInc = null;
-		if(countFlips) {
-			prevInc = new boolean[opt.clauses][literals];
-			for(int j=0; j<opt.clauses; j++)
-				for(int k=0; k<literals; k++) {
-					prevInc[j][k] = includeLiteral(clauses[j].ta[k]);
-				}
-		}
-		
 		calculateClauseOutputs(input, false);
 		int classSum = calculateVoting();
 		
@@ -223,26 +256,14 @@ public class TsetlinMachine {
 			double feedbackProbability;
 			if(y) {
 				feedbackProbability = (opt.threshold - classSum) / (2.0 * opt.threshold);
-				if(withProbability(feedbackProbability)) {
-					if(countFeedback) countType1++;
+				if(withProbability(feedbackProbability))
 					typeIFeedback(this.clauses[j], input);
-				}
 			}
 			else {
 				feedbackProbability = (opt.threshold + classSum) / (2.0 * opt.threshold);
-				if(withProbability(feedbackProbability)) {
-					if(countFeedback) countType2++;
+				if(withProbability(feedbackProbability))
 					typeIIFeedback(this.clauses[j], input);
-				}
 			}
-		}
-		
-		if(prevInc!=null) {
-			for(int j=0; j<opt.clauses; j++)
-				for(int k=0; k<literals; k++) {
-					if(prevInc[j][k]!=includeLiteral(clauses[j].ta[k]))
-						flips++;
-				}
 		}
 	}
 	
@@ -251,14 +272,4 @@ public class TsetlinMachine {
 		return calculateVoting();
 	}
 
-	public int countIncluded() {
-		int count = 0;
-		for(int j=0; j<opt.clauses; j++)
-			for(int k=0; k<literals; k++) {
-				if(includeLiteral(clauses[j].ta[k]))
-					count++;
-			}
-		return count;
-	}
-	
 }

@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 
+import ncl.tsetlin.csv.DataLogger;
+
 public class TsetlinData {
 
 	public final TsetlinOptions opt;
+	public DataLogger logger = null;
 	
 	public boolean[][] trainX;
 	public int[] trainy;

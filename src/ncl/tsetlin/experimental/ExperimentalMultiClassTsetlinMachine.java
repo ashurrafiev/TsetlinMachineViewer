@@ -1,15 +1,18 @@
-package ncl.tsetlin;
+package ncl.tsetlin.experimental;
 
-public class MultiClassTsetlinMachine {
+import ncl.tsetlin.TsetlinOptions;
+
+public class ExperimentalMultiClassTsetlinMachine {
 
 	public final TsetlinOptions opt;
-	public TsetlinMachine[] tsetlinMachines;
+	public ExperimentalTsetlinMachine[] tsetlinMachines;
 	
-	public MultiClassTsetlinMachine(TsetlinOptions opt) {
+	public ExperimentalMultiClassTsetlinMachine(TsetlinOptions opt) {
+		System.err.println("Experimental TM");
 		this.opt = opt;
-		this.tsetlinMachines = new TsetlinMachine[opt.classes];
+		this.tsetlinMachines = new ExperimentalTsetlinMachine[opt.classes];
 		for(int i=0; i<opt.classes; i++) {
-			this.tsetlinMachines[i] = new TsetlinMachine(opt);
+			this.tsetlinMachines[i] = new ExperimentalTsetlinMachine(opt);
 		}
 	}
 
@@ -27,7 +30,7 @@ public class MultiClassTsetlinMachine {
 		for(int l=0; l<numberOfExamples; l++) {
 			maxClassSum = this.tsetlinMachines[0].score(inputs[l]);
 			maxClass = 0;
-			for(int i=1; i<opt.classes; i++) {
+			for(int i=1; i<opt.classes; i++) {	
 				int classSum = this.tsetlinMachines[i].score(inputs[l]);
 				if(maxClassSum < classSum) {
 					maxClassSum = classSum;
@@ -46,9 +49,9 @@ public class MultiClassTsetlinMachine {
 	public void update(boolean input[], int output) {
 		this.tsetlinMachines[output].update(input, true);
 
-		int negativeTargetClass = TsetlinMachine.rand.nextInt(opt.classes);
+		int negativeTargetClass = ExperimentalTsetlinMachine.rand.nextInt(opt.classes);
 		while(negativeTargetClass == output) {
-			negativeTargetClass = TsetlinMachine.rand.nextInt(opt.classes);
+			negativeTargetClass = ExperimentalTsetlinMachine.rand.nextInt(opt.classes);
 		}
 
 		this.tsetlinMachines[negativeTargetClass].update(input, false);
@@ -64,13 +67,5 @@ public class MultiClassTsetlinMachine {
 		for(int epoch=0; epoch<epochs; epoch++) {
 			fit(inputs, outputs, numberOfExamples);
 		}
-	}
-	
-	public int countIncluded() {
-		int count = 0;
-		for(int i=0; i<opt.classes; i++) {
-			count += this.tsetlinMachines[i].countIncluded();
-		}
-		return count;
 	}
 }

@@ -1,25 +1,23 @@
-package ncl.tsetlin.view;
-
-import ncl.tsetlin.TsetlinMachine.Polarity;
+package ncl.tsetlin.experimental;
 
 import java.io.PrintWriter;
 
-import ncl.tsetlin.MultiClassTsetlinMachine;
 import ncl.tsetlin.TsetlinData;
-import ncl.tsetlin.TsetlinMachine;
+import ncl.tsetlin.TsetlinMachine.Polarity;
 import ncl.tsetlin.TsetlinOptions;
+import ncl.tsetlin.view.TsetlinStateTracker;
 
-public class TsetlinLiveTracker implements TsetlinStateTracker {
+public class ExperimentalTsetlinLiveTracker implements TsetlinStateTracker {
 
 	public final TsetlinData data;
-	public final MultiClassTsetlinMachine mcTsetlinMachine;
+	public final ExperimentalMultiClassTsetlinMachine mcTsetlinMachine;
 	
 	public int epoch = 0;
 	public int nextExample = 0;
 
-	public TsetlinLiveTracker(TsetlinData data) {
+	public ExperimentalTsetlinLiveTracker(TsetlinData data) {
 		this.data = data;
-		this.mcTsetlinMachine = new MultiClassTsetlinMachine(data.opt);
+		this.mcTsetlinMachine = new ExperimentalMultiClassTsetlinMachine(data.opt);
 		reset();
 	}
 
@@ -32,7 +30,7 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 	public int getTAState(int cls, int clause, Polarity polarity, int feature) {
 		return mcTsetlinMachine.tsetlinMachines[cls].getState(clause, polarity, feature);
 	}
-	
+
 	@Override
 	public int countTAPerClause() {
 		return mcTsetlinMachine.tsetlinMachines[0].literals;
@@ -40,9 +38,9 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 	
 	@Override
 	public int getRawTAState(int cls, int clause, int ta) {
-		return mcTsetlinMachine.tsetlinMachines[cls].clauses[clause].ta[ta];
+		return mcTsetlinMachine.tsetlinMachines[cls].clauses[clause].ta_w[ta];
 	}
-
+	
 	@Override
 	public int getEpoch() {
 		return epoch;
@@ -63,14 +61,10 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 		mcTsetlinMachine.initialize();
 		epoch = 0;
 		nextExample = 0;
-		if(data.logger!=null)
-			data.logger.reset(this);
 	}
 	
 	@Override
 	public void nextState() {
-		if(data.logger!=null)
-			data.logger.log(this);
 		mcTsetlinMachine.update(data.trainX[nextExample], data.trainy[nextExample]);
 		
 		nextExample++;
@@ -109,36 +103,20 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 
 	@Override
 	public void printStatusHeader(PrintWriter out) {
-		out.printf("acctrain\tacctest\t");
-		for(int i=0; i<data.opt.classes; i++) {
-			out.printf("inc%d\tflips%<d\ttype1-c%<d\ttype2-c%<d\t", i);
-		}
 	}
 	
 	@Override
 	public void printStatus(PrintWriter out) {
-		out.printf("%.3f\t", evaluateTrain());
-		out.printf("%.3f\t", evaluateTest());
-		for(int i=0; i<data.opt.classes; i++) {
-			TsetlinMachine tm = mcTsetlinMachine.tsetlinMachines[i];
-			out.printf("%d\t", tm.countIncluded());
-			out.printf("%d\t", tm.flips);
-			tm.flips = 0;
-			out.printf("%d\t", tm.countType1);
-			tm.countType1 = 0;
-			out.printf("%d\t", tm.countType2);
-			tm.countType2 = 0;
-		}
 	}
-	
+
 	@Override
 	public boolean includeLiteral(int state) {
-		return TsetlinMachine.includeLiteral(state);
+		return ExperimentalTsetlinMachine.includeLiteral(state);
 	}
 
 	@Override
 	public float getIncludeLevel(int state) {
-		return (float) TsetlinMachine.getIncludeLevel(data.opt, state);
+		return (float) ExperimentalTsetlinMachine.getIncludeLevel(data.opt, state);
 	}
 
 }

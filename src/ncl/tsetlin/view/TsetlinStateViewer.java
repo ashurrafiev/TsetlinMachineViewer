@@ -125,8 +125,8 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 				}
 				for(int r=0; r<opt.features; r++) {
 					if(uiDrawLiterals) {
-						boolean pos = tmStates.includeLiteral(tmStates.getState(cls, c, Polarity.positive, r));
-						boolean neg = tmStates.includeLiteral(tmStates.getState(cls, c, Polarity.negative, r));
+						boolean pos = tmStates.includeLiteral(tmStates.getTAState(cls, c, Polarity.positive, r));
+						boolean neg = tmStates.includeLiteral(tmStates.getTAState(cls, c, Polarity.negative, r));
 						if(pos && neg) {
 							g.setColor(Color.RED);
 							g.setFont(fontSmall.deriveFont(Font.BOLD));
@@ -146,8 +146,8 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 						}
 					}
 					else {
-						g.fillRect(xc+c*colw, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getState(cls, c, Polarity.positive, r)));
-						g.fillRect(xc+c*colw+boxSize, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getState(cls, c, Polarity.negative, r)));
+						g.fillRect(xc+c*colw, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.positive, r)));
+						g.fillRect(xc+c*colw+boxSize, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.negative, r)));
 					}
 				}
 			}

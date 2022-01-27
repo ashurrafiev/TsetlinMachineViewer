@@ -2,6 +2,7 @@ package ncl.tsetlin.csv;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -70,13 +71,28 @@ public class TsetlinCsvView implements TsetlinStateTracker {
 	}
 
 	@Override
-	public int getState(int cls, int clause, Polarity polarity, int feature) {
+	public int getTAState(int cls, int clause, Polarity polarity, int feature) {
 		return epochStates.get(this.epoch-1).ta[cls*opt.clauses+clause][polarity==Polarity.positive ? feature : feature+opt.features];
+	}
+	
+	@Override
+	public int countTAPerClause() {
+		return opt.features*2;
+	}
+	
+	@Override
+	public int getRawTAState(int cls, int clause, int ta) {
+		return epochStates.get(this.epoch-1).ta[cls*opt.clauses+clause][ta];
 	}
 
 	@Override
 	public int getEpoch() {
 		return epoch;
+	}
+	
+	@Override
+	public int getStateIndex() {
+		return 0;
 	}
 
 	@Override
@@ -119,6 +135,14 @@ public class TsetlinCsvView implements TsetlinStateTracker {
 	@Override
 	public double evaluateTest() {
 		return -1;
+	}
+	
+	@Override
+	public void printStatusHeader(PrintWriter out) {
+	}
+	
+	@Override
+	public void printStatus(PrintWriter out) {
 	}
 
 	@Override

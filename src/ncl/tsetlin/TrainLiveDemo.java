@@ -6,7 +6,9 @@ import static ncl.tsetlin.view.TsetlinStateViewer.*;
 import java.io.IOException;
 import java.util.HashMap;
 
+import ncl.tsetlin.csv.DataLogger;
 import ncl.tsetlin.csv.TsetlinCsvView;
+import ncl.tsetlin.experimental.ExperimentalTsetlinLiveTracker;
 import ncl.tsetlin.view.TsetlinLiveTracker;
 import ncl.tsetlin.view.TsetlinStateTracker;
 
@@ -49,7 +51,15 @@ public class TrainLiveDemo {
 
 			data.readFiles(trainData, testData);
 		}
-		return (TsetlinStateTracker) new TsetlinLiveTracker(data);
+		
+		if(getBoolean(values.get("logData"), false))
+			data.logger = new DataLogger(); 
+		
+		boolean experimental = getBoolean(values.get("experimental"), false);
+		if(experimental)
+			return new ExperimentalTsetlinLiveTracker(data);
+		else
+			return new TsetlinLiveTracker(data);
 	}
 
 	public static void main(String[] args) {
