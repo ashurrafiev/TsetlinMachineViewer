@@ -2,7 +2,10 @@ package ncl.tsetlin.view;
 
 import ncl.tsetlin.TsetlinMachine.Polarity;
 
+import static ncl.tsetlin.ConfigLoader.getInt;
+
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import ncl.tsetlin.MultiClassTsetlinMachine;
 import ncl.tsetlin.TsetlinData;
@@ -13,6 +16,8 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 
 	public final TsetlinData data;
 	public final MultiClassTsetlinMachine mcTsetlinMachine;
+	
+	public int optRemapPeriod = 0;
 	
 	public int epoch = 0;
 	public int nextExample = 0;
@@ -76,6 +81,8 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 		nextExample++;
 		if(nextExample>=data.countTrain) {
 			epoch++;
+			if(optRemapPeriod>0 && (epoch%optRemapPeriod)==0)
+				mcTsetlinMachine.remapTAStates();
 			nextExample = 0;
 		}
 	}
@@ -139,6 +146,12 @@ public class TsetlinLiveTracker implements TsetlinStateTracker {
 	@Override
 	public float getIncludeLevel(int state) {
 		return (float) TsetlinMachine.getIncludeLevel(data.opt, state);
+	}
+
+	@Override
+	public TsetlinStateTracker setConfigValues(HashMap<String, String> values) {
+		this.optRemapPeriod = getInt(values.get("logFrequency"), 0, Integer.MAX_VALUE, 0);
+		return this;
 	}
 
 }

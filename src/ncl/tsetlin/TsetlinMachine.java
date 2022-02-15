@@ -125,16 +125,19 @@ public class TsetlinMachine {
 	public void initialize() {
 		for(int j=0; j<opt.clauses; j++) {				
 			for(int k=0; k<literals; k+=2) {
-				/*if(withProbability(0.5)) {
-					this.clauses[j].ta[k] = 1;
-					this.clauses[j].ta[k+1] = 0; 
-				}
-				else {
-					this.clauses[j].ta[k] = 0;
-					this.clauses[j].ta[k+1] = 1; 
-				}*/
 				this.clauses[j].ta[k] = 0;
 				this.clauses[j].ta[k+1] = 0; 
+			}
+		}
+	}
+	
+	public void remapTAStates() {
+		for(int j=0; j<opt.clauses; j++) {				
+			for(int k=0; k<literals; k++) {
+				if(includeLiteral(this.clauses[j].ta[k]))
+					this.clauses[j].ta[k] = 1;
+				else
+					this.clauses[j].ta[k] = -opt.numStates+1;
 			}
 		}
 	}

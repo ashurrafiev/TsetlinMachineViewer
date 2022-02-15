@@ -57,10 +57,9 @@ public class TrainLiveDemo {
 		}
 		
 		boolean experimental = getBoolean(values.get("experimental"), false);
-		if(experimental)
-			return new ExperimentalTsetlinLiveTracker(data);
-		else
-			return new TsetlinLiveTracker(data);
+		TsetlinStateTracker tracker = experimental ? new ExperimentalTsetlinLiveTracker(data) : new TsetlinLiveTracker(data);
+		tracker.setConfigValues(values);
+		return tracker;
 	}
 
 	public static void main(String[] args) {

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import ncl.tsetlin.TsetlinMachine.Polarity;
@@ -158,4 +159,8 @@ public class TsetlinCsvView implements TsetlinStateTracker {
 			return (state-opt.numStates/2) / (float)(opt.numStates/2);
 	}
 
+	@Override
+	public TsetlinStateTracker setConfigValues(HashMap<String, String> values) {
+		return this;
+	}
 }

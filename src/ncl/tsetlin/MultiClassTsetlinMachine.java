@@ -59,6 +59,12 @@ public class MultiClassTsetlinMachine {
 			update(inputs[l], outputs[l]);
 		}
 	}
+	
+	public void remapTAStates() {
+		for(int i=0; i<opt.classes; i++) {
+			this.tsetlinMachines[i].remapTAStates();
+		}
+	}
 
 	public void fit(boolean[][] inputs, int[] outputs, int numberOfExamples, int epochs) {
 		for(int epoch=0; epoch<epochs; epoch++) {

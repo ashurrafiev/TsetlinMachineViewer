@@ -1,6 +1,7 @@
 package ncl.tsetlin.view;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import ncl.tsetlin.TsetlinMachine.Polarity;
 import ncl.tsetlin.TsetlinOptions;
@@ -30,5 +31,7 @@ public interface TsetlinStateTracker {
 	
 	public boolean includeLiteral(int state);
 	public float getIncludeLevel(int state);
+	
+	public TsetlinStateTracker setConfigValues(HashMap<String, String> values);
 	
 }
