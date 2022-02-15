@@ -1,6 +1,7 @@
 package ncl.tsetlin.experimental;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import ncl.tsetlin.TsetlinData;
 import ncl.tsetlin.TsetlinMachine.Polarity;
@@ -119,4 +120,8 @@ public class ExperimentalTsetlinLiveTracker implements TsetlinStateTracker {
 		return (float) ExperimentalTsetlinMachine.getIncludeLevel(data.opt, state);
 	}
 
+	@Override
+	public TsetlinStateTracker setConfigValues(HashMap<String, String> values) {
+		return this;
+	}
 }
