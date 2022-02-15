@@ -26,6 +26,7 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 	public static final Color bgColor = new Color(0xeeeeee);
 	public static final Color lightGray = new Color(0xcccccc);
 
+	public static boolean uiGrayscale = false;
 	public static boolean uiDrawLiterals = false;
 	public static boolean uiClassesVertical = true;
 	public static float uiScale = 1f;
@@ -59,15 +60,32 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 		return true;
 	}
 	
-	public Color taStateColor(int state) {
-		float c = tmStates.getIncludeLevel(state);
-		if(c>0) {
-			c = c*0.6f+0.4f;
-			return new Color(0, c, 0);
+	public Color taStateColor(float c) {
+		if(uiGrayscale) {
+			c = 1f - Math.abs(c);
+			return new Color(c, c, c);
 		}
 		else {
-			c = (-c)*0.6f+0.4f;
-			return new Color(c, 0, 0);
+			if(c>0) {
+				c = c*0.6f+0.4f;
+				return new Color(0, c, 0);
+			}
+			else {
+				c = (-c)*0.6f+0.4f;
+				return new Color(c, 0, 0);
+			}
+		}
+	}
+	
+	private void paintStateBox(GraphAssist g, float x, float y, int state) {
+		float level = tmStates.getIncludeLevel(state);
+		Color c = taStateColor(level);
+		g.fillRect(x, y, boxSize, boxSize, c);
+		if(uiGrayscale && level>0) {
+			Color cc = c.getRed()>=192 ? Color.DARK_GRAY : Color.WHITE;
+			g.setColor(cc);
+			g.fillRect(x+2, y+boxSize/2-1, boxSize-4, 2);
+			g.fillRect(x+boxSize/2-1, y+2, 2, boxSize-4);
 		}
 	}
 	
@@ -146,8 +164,10 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 						}
 					}
 					else {
-						g.fillRect(xc+c*colw, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.positive, r)));
-						g.fillRect(xc+c*colw+boxSize, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.negative, r)));
+						paintStateBox(g, xc+c*colw, yc+r*rowh, tmStates.getTAState(cls, c, Polarity.positive, r));
+						paintStateBox(g, xc+c*colw+boxSize, yc+r*rowh, tmStates.getTAState(cls, c, Polarity.negative, r));
+						//g.fillRect(xc+c*colw, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.positive, r)));
+						//g.fillRect(xc+c*colw+boxSize, yc+r*rowh, boxSize, boxSize, taStateColor(tmStates.getTAState(cls, c, Polarity.negative, r)));
 					}
 				}
 			}
@@ -164,6 +184,10 @@ public class TsetlinStateViewer extends UIElement implements KeyInputHandler {
 		switch(code) {
 			case KeyEvent.VK_L:
 				uiDrawLiterals = !uiDrawLiterals;
+				repaint();
+				break;
+			case KeyEvent.VK_C:
+				uiGrayscale = !uiGrayscale;
 				repaint();
 				break;
 			case KeyEvent.VK_V:

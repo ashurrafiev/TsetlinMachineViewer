@@ -26,6 +26,7 @@ public class TrainLiveDemo {
 		uiDrawLiterals = getBoolean(values.get("uiDrawLiterals"), false);
 		uiClassesVertical = getBoolean(values.get("uiClassesVertical"), true);
 		uiScale = getFloat(values.get("uiScale"), 0.1f, 10f, 1f);
+		uiGrayscale = getBoolean(values.get("uiGrayscale"), false);
 		
 		String csvFormat = values.get("csvPathFormat");
 		if (csvFormat != null) {
