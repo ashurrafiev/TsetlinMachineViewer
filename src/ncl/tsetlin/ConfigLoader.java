@@ -22,7 +22,11 @@ public class ConfigLoader {
 			return null;
 		}
 	}
-	
+
+	public static String getString(String value, String fallback) {
+		return (value==null) ? fallback : value;
+	}
+
 	public static int getInt(String value, int min, int max, int fallback) {
 		if(value==null)
 			return fallback;

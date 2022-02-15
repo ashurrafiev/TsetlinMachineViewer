@@ -1,8 +1,13 @@
 package ncl.tsetlin.csv;
 
+import static ncl.tsetlin.ConfigLoader.getString;
+import static ncl.tsetlin.ConfigLoader.getInt;
+import static ncl.tsetlin.ConfigLoader.getBoolean;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 
 import ncl.tsetlin.view.TsetlinStateTracker;
 
@@ -14,8 +19,8 @@ public class DataLogger {
 	public String rootPath = "data/logs";
 	public String logName = "tm";
 	
-	public int logFrequency = 10;
-	public boolean optLogTAStates = true;
+	public int logFrequency = 0;
+	public boolean optLogTAStates = false;
 	public boolean optLogStatus = true;
 
 	protected int step = 0;
@@ -99,5 +104,14 @@ public class DataLogger {
 			if(t==0)
 				log(step++, tracker);
 		}
+	}
+	
+	public DataLogger setConfigValues(HashMap<String, String> values) {
+		this.rootPath = getString(values.get("rootPath"), this.rootPath);
+		this.logName = getString(values.get("logName"), this.logName);
+		this.logFrequency = getInt(values.get("logFrequency"), 0, Integer.MAX_VALUE, 0);
+		this.optLogTAStates = getBoolean(values.get("logTAStates"), false);
+		this.optLogStatus = getBoolean(values.get("logStatus"), true);
+		return this;
 	}
 }

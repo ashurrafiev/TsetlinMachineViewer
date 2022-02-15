@@ -52,8 +52,9 @@ public class TrainLiveDemo {
 			data.readFiles(trainData, testData);
 		}
 		
-		if(getBoolean(values.get("logData"), false))
-			data.logger = new DataLogger(); 
+		if(getBoolean(values.get("logData"), false)) {
+			data.logger = new DataLogger().setConfigValues(values); 
+		}
 		
 		boolean experimental = getBoolean(values.get("experimental"), false);
 		if(experimental)
