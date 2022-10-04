@@ -213,7 +213,13 @@ public class TsetlinMachine {
 		
 		calculateClauseOutputs(input, false);
 		int classSum = calculateVoting();
-		
+
+		// calculate feedback probability
+		double feedbackProbability;
+		feedbackProbability = (opt.threshold - classSum) / (2.0 * opt.threshold);
+		if(!output)
+			feedbackProbability = 1.0 - feedbackProbability;
+
 		for(int j=0; j<opt.clauses; j++) {
 			// inverse the decision for negatively-voting clauses
 			boolean y;
@@ -222,17 +228,13 @@ public class TsetlinMachine {
 			else
 				y = !output;
 			
-			// calculate feedback probability
-			double feedbackProbability;
 			if(y) {
-				feedbackProbability = (opt.threshold - classSum) / (2.0 * opt.threshold);
 				if(withProbability(feedbackProbability)) {
 					if(countFeedback) countType1++;
 					typeIFeedback(this.clauses[j], input);
 				}
 			}
 			else {
-				feedbackProbability = (opt.threshold + classSum) / (2.0 * opt.threshold);
 				if(withProbability(feedbackProbability)) {
 					if(countFeedback) countType2++;
 					typeIIFeedback(this.clauses[j], input);
