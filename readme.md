@@ -42,6 +42,15 @@ _TsetlinMachineViewer_ uses configuration files to set up TM and viewer options.
 * **testData** (path string) test data file; see [Training data format](#training-data-format). You must specify either **combinedData** or both **trainData** and **testData**.
 * **combinedData** (path string) input data file; see [Training data format](#training-data-format). The app will randomly divide these data into training and test data sets based on the **countTrain** and **countTest** options. You must specify either **combinedData** or both **trainData** and **testData**.
 
+Recording CSV during live training:
+
+* **logData** (boolean) enable CSV logging.
+* **rootPath** (string) path to write files to. Default is `data/logs`. The directory must exist.
+* **logName** (string) file name prefix, default is `tm`.
+* **logFrequency** (int) the number of training inputs between making log entries.
+* **logTAStates** (boolean) save full TM state into `*-tastates.csv`. (This file is currently incompatible with the CSV-view mode, but it should be!)
+* **logStatus** (boolean) save status variables (number of inclusions, number of decision flips, number of Type&nbsp;I and Type&nbsp;II feedbacks) into `*-status.csv`.
+
 #### CSV-view mode
 
 Providing **csvPathFormat** toggles CSV-view mode. CSV-view mode doesn't use live learning options.
@@ -60,7 +69,7 @@ Training and test data is expected in the text format. Each line contains one da
 
 ## Control keys
 
-Use **right mouse button** to pan around and **Control+scroll** to zoom in and out.
+Use **Right Mouse Button** to pan the view and **Control+Scroll** to zoom in and out.
 
 | key | action |
 | :---: | :--- |
@@ -74,4 +83,13 @@ Use **right mouse button** to pan around and **Control+scroll** to zoom in and o
 
 ## Building the sources
 
-The project is dependant on [ZoomUI library](https://github.com/AshurAxelR/ZoomUI) (use the latest sources from the `master` branch, not the JAR).
+The easiest way to build this project is to use [Eclipse IDE](https://www.eclipse.org/downloads/).
+
+The project is dependent on [ZoomUI library](https://github.com/AshurAxelR/ZoomUI) (use the latest sources from the `master` branch, not the JAR). Clone ZoomUI as another project in the same workspace:
+
+```
+.../Workspace/TsetlinMachineViewer
+.../Workspace/ZoomUI
+```
+
+Once both projects are added to the workspace, Eclipse should see the dependency.
