@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import ncl.tsetlin.csv.DataLogger;
+import ncl.tsetlin.csv.LegacyTsetlinCsvView;
 import ncl.tsetlin.csv.TsetlinCsvView;
 import ncl.tsetlin.experimental.ExperimentalTsetlinLiveTracker;
 import ncl.tsetlin.view.TsetlinLiveTracker;
@@ -28,10 +29,21 @@ public class TrainLiveDemo {
 		uiScale = getFloat(values.get("uiScale"), 0.1f, 10f, 1f);
 		uiGrayscale = getBoolean(values.get("uiGrayscale"), false);
 		
-		String csvFormat = values.get("csvPathFormat");
-		if (csvFormat != null) {
+		String csv = values.get("viewCSV");
+		if (csv != null) {
 			try {
-				return (TsetlinStateTracker) new TsetlinCsvView(opt, csvFormat);
+				return (TsetlinStateTracker) new TsetlinCsvView(opt, csv);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(1);
+				return null;
+			}
+		}
+		
+		csv = values.get("legacyCSVPathFormat");
+		if (csv != null) {
+			try {
+				return (TsetlinStateTracker) new LegacyTsetlinCsvView(opt, csv);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);

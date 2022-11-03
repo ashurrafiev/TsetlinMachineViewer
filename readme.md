@@ -5,10 +5,10 @@ GUI application for visualising [Tsetlin machine](https://github.com/cair/Tsetli
 
 ## Download and Run
 
-* Download: [**tsetlinviewer.jar**](https://github.com/ashurrafiev/TsetlinMachineViewer/releases/download/1.0/tsetlinviewer.jar)
-* Download example data: [**data.zip**](https://github.com/ashurrafiev/TsetlinMachineViewer/releases/download/1.0/data.zip)
+* Download: [**tsetlinviewer.jar**](https://github.com/ashurrafiev/TsetlinMachineViewer/releases/download/1.1/tsetlinviewer.jar)
+* Download example data: [**data.zip**](https://github.com/ashurrafiev/TsetlinMachineViewer/releases/download/1.1/data.zip)
 
-Requires [Java 8](https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot) or later to run.
+Requires [Java 8](https://adoptium.net/en-GB/temurin/releases/?version=8) or later to run.
 
 Running from command line:
 
@@ -19,7 +19,9 @@ java -jar tsetlinviewer.jar <config_file.cfg>
 Example configurations:
 * [BinaryIris.cfg](BinaryIris.cfg) live learning demo using IRIS dataset.
 * [NoisyXor.cfg](NoisyXor.cfg) live learning demo using [Noisy XOR](https://github.com/cair/TsetlinMachine) dataset.
-* [IrisRunCsv.cfg](IrisRunCsv.cfg) viewing IRIS learning saved as CSV files.
+* [BinaryIrisLog.cfg](BinaryIrisLog.cfg) live learning IRIS that logs TA states and metrics in `data/logs` directory.
+* [BinaryIrisReplay.cfg](BinaryIrisReplay.cfg) replays IRIS learning from `data/logs` directory.
+
 
 See [Control keys](#control-keys) on how to operate the GUI.
 
@@ -45,7 +47,7 @@ _TsetlinMachineViewer_ uses configuration files to set up TM and viewer options.
 Recording CSV during live training:
 
 * **logData** (boolean) enable CSV logging.
-* **rootPath** (string) path to write files to. Default is `data/logs`. The directory must exist.
+* **logPath** (string) path to write files to. Default is `data/logs`. The directory must exist.
 * **logName** (string) file name prefix, default is `tm`.
 * **logFrequency** (int) the number of training inputs between making log entries.
 * **logTAStates** (boolean) save full TM state into `*-tastates.csv`. (This file is currently incompatible with the CSV-view mode, but it should be!)
@@ -53,9 +55,13 @@ Recording CSV during live training:
 
 #### CSV-view mode
 
-Providing **csvPathFormat** toggles CSV-view mode. CSV-view mode doesn't use live learning options.
+Providing **viewCSV** toggles CSV-view mode. CSV-view mode doesn't use live learning options.
 
-* **csvPathFormat** (path string) path to CSV (or TSV) files, one file per learning epoch. Use `%d` in the path format to indicate epoch indices. Each line of the file corresponds to a literal, 2 &times; **features** lines in total: first **features** literals are positive, last **features** literals are negative. One line contains **classes** &times; **clauses** TA state values in order.
+* **viewCSV** (path string) path to CSV (or TSV) file containing the state of TAs. This can be a `*-tastates.csv` file saved by using `logData` option in combination with `logTAStates`.
+
+Providing **legacyCSVPathFormat** toggles legacy CSV-view mode for older version CSV format (now deprecated).
+
+* **legacyCSVPathFormat** (path string) path to CSV (or TSV) files, one file per learning epoch. Use `%d` in the path format to indicate epoch indices. Each line of the file corresponds to a literal, 2 &times; **features** lines in total: first **features** literals are positive, last **features** literals are negative. One line contains **classes** &times; **clauses** TA state values in order.
 
 #### GUI options
 
@@ -80,6 +86,8 @@ Use **Right Mouse Button** to pan the view and **Control+Scroll** to zoom in and
 | **Backspace** | reset TM to the initial state; live mode: randomise initial state |
 | **L** | toggle between literal display and TA state display |
 | **V** | toggle between horizontal and vertical layouts |
+| **C** | toggle grayscale mode |
+
 
 ## Building the sources
 

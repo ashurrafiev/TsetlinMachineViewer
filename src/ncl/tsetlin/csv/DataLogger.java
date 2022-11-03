@@ -31,6 +31,7 @@ public class DataLogger {
 		if(out!=null)
 			out.close();
 		try {
+			new File(rootPath).mkdirs();
 			out = new PrintWriter(new File(rootPath, logName+name));
 			return out;
 		} catch (FileNotFoundException e) {
@@ -107,7 +108,7 @@ public class DataLogger {
 	}
 	
 	public DataLogger setConfigValues(HashMap<String, String> values) {
-		this.rootPath = getString(values.get("rootPath"), this.rootPath);
+		this.rootPath = getString(values.get("logPath"), this.rootPath);
 		this.logName = getString(values.get("logName"), this.logName);
 		this.logFrequency = getInt(values.get("logFrequency"), 0, Integer.MAX_VALUE, 0);
 		this.optLogTAStates = getBoolean(values.get("logTAStates"), false);
